@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  FREE
+  BASIC
+  PRO
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String?
+  image     String?
+  plan      Plan     @default(FREE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts     Account[]
+  sessions     Session[]
+  chatbots     Chatbot[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  access_token      String?
+  refresh_token     String?
+  expires_at        Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Chatbot {
+  id             String   @id @default(cuid())
+  userId         String
+  name           String
+  description    String?
+  welcomeMessage String   @default("Hi! How can I help you?")
+  placeholder    String   @default("Ask me anything...")
+  primaryColor   String   @default("#7C3AED")
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents     Document[]
+  conversations Conversation[]
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  chatbotId String
+  name      String
+  type      String
+  url       String?
+  content   String
+  createdAt DateTime @default(now())
+
+  chatbot Chatbot @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  chatbotId String
+  startedAt DateTime @default(now())
+
+  chatbot  Chatbot   @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  messages Message[]
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String
+  content        String
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
