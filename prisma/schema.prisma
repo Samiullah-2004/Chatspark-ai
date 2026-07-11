@@ -78,7 +78,8 @@ model Document {
   content   String
   createdAt DateTime @default(now())
 
-  chatbot Chatbot @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  chatbot    Chatbot     @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  embeddings Embedding[]
 }
 
 model Conversation {
@@ -98,4 +99,12 @@ model Message {
   createdAt      DateTime @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model Embedding {
+  id         String @id @default(cuid())
+  documentId String
+  content    String
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 }
