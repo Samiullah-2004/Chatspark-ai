@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { generateEmbedding, chunkText } from "@/lib/embeddings"
 
 const documentSchema = z.object({
   chatbotId: z.string(),
@@ -46,6 +47,7 @@ export async function POST(req: Request) {
       )
     }
 
+    // Save document
     const document = await prisma.document.create({
       data: {
         chatbotId: parsed.data.chatbotId,
@@ -55,6 +57,23 @@ export async function POST(req: Request) {
         content: parsed.data.content,
       },
     })
+
+    // Chunk text and generate embeddings
+    const chunks = chunkText(parsed.data.content)
+
+    for (const chunk of chunks) {
+      const vector = await generateEmbedding(chunk)
+
+      await prisma.$executeRaw`
+        INSERT INTO "Embedding" (id, "documentId", content, vector)
+        VALUES (
+          ${crypto.randomUUID()},
+          ${document.id},
+          ${chunk},
+          ${JSON.stringify(vector)}::vector
+        )
+      `
+    }
 
     return NextResponse.json(document, { status: 201 })
   } catch (error) {
