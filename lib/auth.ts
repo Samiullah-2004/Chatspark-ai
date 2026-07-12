@@ -43,6 +43,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "github") {
+        if (!user.email) return false
+
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        })
+
+        if (!existingUser) {
+          const newUser = await prisma.user.create({
+            data: {
+              email: user.email,
+              name: user.name,
+              image: user.image,
+            },
+          })
+          user.id = newUser.id
+        } else {
+          user.id = existingUser.id
+        }
+      }
+
+      return true
+    },
     async session({ session, token }) {
       if (token.sub && session.user) {
         session.user.id = token.sub

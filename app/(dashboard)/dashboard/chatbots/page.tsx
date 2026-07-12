@@ -117,11 +117,10 @@ export default function ChatbotsPage() {
                   <div className="w-10 h-10 rounded-xl bg-[#1F1F23] group-hover:bg-[#2A2A2E] flex items-center justify-center text-xl transition-all">
                     🤖
                   </div>
-                  <span className={`text-xs px-2.5 py-1 rounded-lg border ${
-                    chatbot.isActive
-                      ? "border-green-500/30 text-green-400 bg-green-500/10"
-                      : "border-[#1F1F23] text-[#A1A1AA]"
-                  }`}>
+                  <span className={`text-xs px-2.5 py-1 rounded-lg border ${chatbot.isActive
+                    ? "border-green-500/30 text-green-400 bg-green-500/10"
+                    : "border-[#1F1F23] text-[#A1A1AA]"
+                    }`}>
                     {chatbot.isActive ? "Active" : "Inactive"}
                   </span>
                 </div>
@@ -160,9 +159,19 @@ export default function ChatbotsPage() {
                   <span className="text-xs text-[#A1A1AA]">
                     {new Date(chatbot.createdAt).toLocaleDateString()}
                   </span>
-                  <span className="text-xs text-[#A1A1AA] group-hover:text-white transition">
-                    Manage →
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`/widget/${chatbot.id}`}
+                      target="_blank"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs text-[#A1A1AA] hover:text-white border border-[#1F1F23] hover:border-[#3F3F46] px-2 py-1 rounded-lg transition"
+                    >
+                      Widget ↗
+                    </a>
+                    <span className="text-xs text-[#A1A1AA] group-hover:text-white transition">
+                      Manage →
+                    </span>
+                  </div>
                 </div>
               </Link>
             </motion.div>

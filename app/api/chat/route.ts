@@ -6,8 +6,8 @@ import { z } from "zod"
 
 const chatSchema = z.object({
   chatbotId: z.string(),
-  question: z.string(),
-  conversationId: z.string().optional(),
+  question: z.string().min(1),
+  conversationId: z.string().nullable().optional(),
 })
 
 export async function POST(req: Request) {
@@ -40,16 +40,16 @@ export async function POST(req: Request) {
     const questionVector = await generateEmbedding(question)
     const vectorString = JSON.stringify(questionVector)
 
-    // Search similar chunks using pgvector
-const similarChunks = await (prisma.$queryRawUnsafe(
-      `SELECT content, 1 - (vector <=> '${vectorString}'::vector) AS similarity
-       FROM "Embedding"
-       WHERE "documentId" IN (
-         SELECT id FROM "Document" WHERE "chatbotId" = '${chatbotId}'
-       )
-       ORDER BY vector <=> '${vectorString}'::vector
-       LIMIT 5`
-    ) as Promise<{ content: string; similarity: number }[]>)
+// Search similar chunks using pgvector
+    const similarChunks = await prisma.$queryRaw<{ content: string; similarity: number }[]>`
+      SELECT content, 1 - (vector <=> ${vectorString}::vector) AS similarity
+      FROM "Embedding"
+      WHERE "documentId" IN (
+        SELECT id FROM "Document" WHERE "chatbotId" = ${chatbotId}
+      )
+      ORDER BY vector <=> ${vectorString}::vector
+      LIMIT 5
+    `
 
     // Build context from similar chunks
     const context = similarChunks

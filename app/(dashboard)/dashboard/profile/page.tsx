@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import { useState } from "react"
 
 export default function ProfilePage() {
@@ -10,6 +10,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState("")
+  const [deleting, setDeleting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,6 +36,31 @@ export default function ProfilePage() {
       setError("Something went wrong")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      "This will permanently delete your account, chatbots, documents and conversations. This cannot be undone. Continue?"
+    )
+    if (!confirmed) return
+
+    setDeleting(true)
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "DELETE",
+      })
+
+      if (!res.ok) {
+        setError("Failed to delete account")
+        setDeleting(false)
+        return
+      }
+
+      await signOut({ callbackUrl: "/login" })
+    } catch {
+      setError("Something went wrong")
+      setDeleting(false)
     }
   }
 
@@ -163,8 +189,12 @@ export default function ProfilePage() {
                 Permanently delete your account and all data. This cannot be undone.
               </p>
             </div>
-            <button className="text-sm text-red-400 border border-red-500/30 hover:bg-red-500/10 px-4 py-2 rounded-lg transition-all w-fit flex-shrink-0">
-              Delete Account
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deleting}
+              className="text-sm text-red-400 border border-red-500/30 hover:bg-red-500/10 px-4 py-2 rounded-lg transition-all w-fit flex-shrink-0 disabled:opacity-50"
+            >
+              {deleting ? "Deleting..." : "Delete Account"}
             </button>
           </div>
         </motion.div>
