@@ -84,11 +84,17 @@ export default function ChatbotDetailPage() {
           )}
         </div>
         <div className="flex items-center gap-3">
-          <span className={`text-xs px-3 py-1.5 rounded-lg border ${
-            chatbot.isActive
+          <a
+            href={`/widget/${chatbot.id}`}
+            target="_blank"
+            className="text-xs bg-white text-black font-semibold px-4 py-2 rounded-lg hover:bg-zinc-200 transition-all"
+          >
+            Open Widget ↗
+          </a>
+          <span className={`text-xs px-3 py-1.5 rounded-lg border ${chatbot.isActive
               ? "border-green-500/30 text-green-400 bg-green-500/10"
               : "border-[#1F1F23] text-[#A1A1AA]"
-          }`}>
+            }`}>
             {chatbot.isActive ? "Active" : "Inactive"}
           </span>
         </div>

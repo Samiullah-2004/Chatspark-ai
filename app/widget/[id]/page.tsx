@@ -53,7 +53,7 @@ export default function WidgetPage() {
     setMessages((prev) => [...prev, { role: "user", content: userMessage }])
     setLoading(true)
 
-    try {
+  try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -65,6 +65,11 @@ export default function WidgetPage() {
       })
 
       const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.message || "Chat request failed")
+      }
+
       setConversationId(data.conversationId)
       setMessages((prev) => [
         ...prev,
