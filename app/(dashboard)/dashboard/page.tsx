@@ -23,7 +23,7 @@ const fadeUp = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.08, duration: 0.4, ease: "easeOut" },
+    transition: { delay: i * 0.08, duration: 0.4, ease: "easeOut" as const },
   }),
 }
 
@@ -238,7 +238,7 @@ export default function DashboardPage() {
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.min((item.used / item.total) * 100, 100)}%` }}
-                      transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
+                      transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" as const }}
                       className={`h-1.5 rounded-full ${
                         (item.used / item.total) >= 0.9 ? "bg-red-400" : "bg-white"
                       }`}
