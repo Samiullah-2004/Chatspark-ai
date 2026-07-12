@@ -14,8 +14,11 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "ChatSpark AI",
-  description: "AI Powered Chatbot SaaS",
+  title: {
+    default: "ChatSpark AI",
+    template: "%s | ChatSpark AI",
+  },
+  description: "Build and deploy AI chatbots trained on your own data.",
 }
 
 export default function RootLayout({
