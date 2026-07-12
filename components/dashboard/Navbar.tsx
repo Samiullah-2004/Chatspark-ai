@@ -33,11 +33,10 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-2 rounded-lg text-sm transition-all ${
-                  pathname === link.href
-                    ? "text-white bg-[#1F1F23]"
-                    : "text-[#A1A1AA] hover:text-white hover:bg-[#1F1F23]"
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm transition-all ${pathname === link.href
+                  ? "text-white bg-[#1F1F23]"
+                  : "text-[#A1A1AA] hover:text-white hover:bg-[#1F1F23]"
+                  }`}
               >
                 {link.label}
               </Link>
@@ -52,12 +51,42 @@ export default function Navbar() {
             >
               + New Chatbot
             </Link>
-            <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              className="text-sm text-[#A1A1AA] hover:text-white transition px-3 py-2 rounded-lg hover:bg-[#1F1F23]"
-            >
-              Logout
-            </button>
+
+            {/* Profile Dropdown */}
+            <div className="relative group">
+              <button className="w-8 h-8 rounded-full bg-white text-black text-sm font-bold flex items-center justify-center hover:bg-zinc-200 transition-all">
+                S
+              </button>
+              <div className="absolute right-0 top-10 w-48 bg-[#111111] border border-[#1F1F23] rounded-xl overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="p-2 space-y-0.5">
+                  <Link
+                    href="/dashboard/profile"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-[#A1A1AA] hover:text-white hover:bg-[#1F1F23] rounded-lg transition"
+                  >
+                    👤 Profile
+                  </Link>
+                  <Link
+                    href="/dashboard/billing"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-[#A1A1AA] hover:text-white hover:bg-[#1F1F23] rounded-lg transition"
+                  >
+                    💳 Billing
+                  </Link>
+                  <Link
+                    href="/dashboard/settings"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-[#A1A1AA] hover:text-white hover:bg-[#1F1F23] rounded-lg transition"
+                  >
+                    ⚙️ Settings
+                  </Link>
+                  <div className="border-t border-[#1F1F23] my-1" />
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/login" })}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-[#1F1F23] rounded-lg transition text-left"
+                  >
+                    🚪 Logout
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Mobile Hamburger */}
@@ -98,11 +127,10 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
-                  className={`block px-4 py-3 rounded-lg text-sm transition-all ${
-                    pathname === link.href
-                      ? "text-white bg-[#1F1F23]"
-                      : "text-[#A1A1AA] hover:text-white hover:bg-[#1F1F23]"
-                  }`}
+                  className={`block px-4 py-3 rounded-lg text-sm transition-all ${pathname === link.href
+                    ? "text-white bg-[#1F1F23]"
+                    : "text-[#A1A1AA] hover:text-white hover:bg-[#1F1F23]"
+                    }`}
                 >
                   {link.label}
                 </Link>
@@ -114,6 +142,27 @@ export default function Navbar() {
                   className="block text-center bg-white text-black text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-zinc-200 transition-all"
                 >
                   + New Chatbot
+                </Link>
+                <Link
+                  href="/dashboard/profile"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-3 rounded-lg text-sm text-[#A1A1AA] hover:text-white hover:bg-[#1F1F23] transition"
+                >
+                  👤 Profile
+                </Link>
+                <Link
+                  href="/dashboard/billing"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-3 rounded-lg text-sm text-[#A1A1AA] hover:text-white hover:bg-[#1F1F23] transition"
+                >
+                  💳 Billing
+                </Link>
+                <Link
+                  href="/dashboard/settings"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-3 rounded-lg text-sm text-[#A1A1AA] hover:text-white hover:bg-[#1F1F23] transition"
+                >
+                  ⚙️ Settings
                 </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: "/login" })}
