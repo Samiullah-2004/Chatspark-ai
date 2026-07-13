@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 
+
 interface Chatbot {
   id: string
   name: string
@@ -23,6 +24,19 @@ export default function ChatbotDetailPage() {
   const router = useRouter()
   const [chatbot, setChatbot] = useState<Chatbot | null>(null)
   const [loading, setLoading] = useState(true)
+  const [deleting, setDeleting] = useState(false)
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure? This will delete the chatbot and all its data permanently.")) return
+    setDeleting(true)
+    try {
+      await fetch(`/api/chatbot/${id}`, { method: "DELETE" })
+      router.push("/dashboard/chatbots")
+    } catch {
+      console.error("Failed to delete chatbot")
+      setDeleting(false)
+    }
+  }
 
   useEffect(() => {
     const fetchChatbot = async () => {
@@ -92,11 +106,18 @@ export default function ChatbotDetailPage() {
             Open Widget ↗
           </a>
           <span className={`text-xs px-3 py-1.5 rounded-lg border ${chatbot.isActive
-              ? "border-green-500/30 text-green-400 bg-green-500/10"
-              : "border-[#1F1F23] text-[#A1A1AA]"
+            ? "border-green-500/30 text-green-400 bg-green-500/10"
+            : "border-[#1F1F23] text-[#A1A1AA]"
             }`}>
             {chatbot.isActive ? "Active" : "Inactive"}
           </span>
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="text-xs text-red-400 border border-red-500/30 hover:bg-red-500/10 px-4 py-2 rounded-lg transition-all disabled:opacity-50"
+          >
+            {deleting ? "Deleting..." : "Delete"}
+          </button>
         </div>
       </motion.div>
 
