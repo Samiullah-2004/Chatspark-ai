@@ -116,7 +116,7 @@ export default function BillingPage() {
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.min((item.used / item.total) * 100, 100)}%` }}
-                  transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
+                  transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" as const }}
                   className={`h-2 rounded-full ${
                     (item.used / item.total) >= 0.9 ? "bg-red-400" :
                     (item.used / item.total) >= 0.7 ? "bg-yellow-400" : "bg-white"
