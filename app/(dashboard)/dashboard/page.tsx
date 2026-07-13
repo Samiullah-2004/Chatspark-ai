@@ -54,7 +54,7 @@ export default function DashboardPage() {
   }, [])
 
   const statCards = [
-    { label: "Active Chatbots", value: stats.totalChatbots, icon: "🤖", href: "/dashboard/chatbots/new" },
+    { label: "Active Chatbots", value: stats.totalChatbots, icon: "🤖", href: "/dashboard/chatbots" },
     { label: "Documents Trained", value: stats.totalDocuments, icon: "📄", href: "/dashboard/chatbots" },
     { label: "Total Conversations", value: stats.totalConversations, icon: "💬", href: "/dashboard/analytics" },
     { label: "Messages This Month", value: stats.totalMessages, icon: "📊", href: "/dashboard/analytics" },
