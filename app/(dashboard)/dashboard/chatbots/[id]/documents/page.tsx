@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
@@ -16,7 +16,6 @@ interface Document {
 
 export default function DocumentsPage() {
   const { id } = useParams()
-  const router = useRouter()
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -33,11 +32,15 @@ export default function DocumentsPage() {
     }
   }
 
-  useEffect(() => {
-    fetchDocuments()
-  }, [id])
+useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  fetchDocuments()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [id])
 
-  const handleUploadComplete = async (res: any) => {
+  const handleUploadComplete = async (
+    res: { url: string; name: string; ufsUrl: string }[]
+  ) => {
     setUploading(true)
     try {
       for (const file of res) {
