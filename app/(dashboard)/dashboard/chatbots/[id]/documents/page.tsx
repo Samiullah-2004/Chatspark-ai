@@ -32,10 +32,11 @@ export default function DocumentsPage() {
     }
   }
 
-  useEffect(() => {
-    fetchDocuments()
-    // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
-  }, [id])
+useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  fetchDocuments()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [id])
 
   const handleUploadComplete = async (
     res: { url: string; name: string; ufsUrl: string }[]
