@@ -182,7 +182,16 @@ export default function WidgetPage() {
           </button>
         </div>
         <p className="text-center text-xs mt-2" style={{ color: textSecondary }}>
-          Powered by <span style={{ color: textPrimary }}>ChatSpark AI</span>
+          Powered by{' '}
+          <a
+            href="https://chatspark-ai-9hwh.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: textPrimary }}
+            className="hover:underline"
+          >
+            ChatSpark AI
+          </a>
         </p>
       </div>
     </div>
