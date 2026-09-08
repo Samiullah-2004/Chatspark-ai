@@ -3,6 +3,8 @@
 import { useParams, useSearchParams } from "next/navigation"
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface Message {
   role: "user" | "assistant"
@@ -129,14 +131,18 @@ export default function WidgetPage() {
                 </div>
               )}
               <div
-                className="max-w-[80%] px-4 py-2.5 rounded-2xl text-sm"
+                className="max-w-[80%] px-4 py-2.5 rounded-2xl text-sm chat-markdown"
                 style={
                   msg.role === "user"
                     ? { backgroundColor: bubbleUser, color: "#FFFFFF", borderTopRightRadius: 0 }
                     : { backgroundColor: bubbleAssistant, color: textPrimary, borderTopLeftRadius: 0 }
                 }
               >
-                {msg.content}
+                {msg.role === "assistant" ? (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                ) : (
+                  msg.content
+                )}
               </div>
             </motion.div>
           ))}
