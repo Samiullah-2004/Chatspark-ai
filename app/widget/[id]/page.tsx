@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -18,6 +18,19 @@ interface Chatbot {
 
 export default function WidgetPage() {
   const { id } = useParams()
+  const searchParams = useSearchParams()
+  const theme = searchParams.get("theme") === "light" ? "light" : "dark"
+  const accent = searchParams.get("accent") || "#2563eb"
+
+  const isDark = theme === "dark"
+  const bg = isDark ? "#0A0A0A" : "#FFFFFF"
+  const surface = isDark ? "#111111" : "#F7F7F8"
+  const border = isDark ? "#1F1F23" : "#E5E5E8"
+  const textPrimary = isDark ? "#FFFFFF" : "#111111"
+  const textSecondary = isDark ? "#A1A1AA" : "#71717A"
+  const bubbleAssistant = isDark ? "#1F1F23" : "#EFEFF1"
+  const bubbleUser = accent
+
   const [chatbot, setChatbot] = useState<Chatbot | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
@@ -31,9 +44,7 @@ export default function WidgetPage() {
         const res = await fetch(`/api/widget/${id}`)
         const data = await res.json()
         setChatbot(data)
-        setMessages([
-          { role: "assistant", content: data.welcomeMessage },
-        ])
+        setMessages([{ role: "assistant", content: data.welcomeMessage }])
       } catch {
         console.error("Failed to fetch chatbot")
       }
@@ -47,34 +58,21 @@ export default function WidgetPage() {
 
   const handleSend = async () => {
     if (!input.trim() || loading) return
-
     const userMessage = input.trim()
     setInput("")
     setMessages((prev) => [...prev, { role: "user", content: userMessage }])
     setLoading(true)
 
-  try {
+    try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chatbotId: id,
-          question: userMessage,
-          conversationId,
-        }),
+        body: JSON.stringify({ chatbotId: id, question: userMessage, conversationId }),
       })
-
       const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.message || "Chat request failed")
-      }
-
+      if (!res.ok) throw new Error(data.message || "Chat request failed")
       setConversationId(data.conversationId)
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data.answer },
-      ])
+      setMessages((prev) => [...prev, { role: "assistant", content: data.answer }])
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -94,114 +92,99 @@ export default function WidgetPage() {
 
   if (!chatbot) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+      <div className="h-screen w-screen flex items-center justify-center" style={{ backgroundColor: bg }}>
+        <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: accent, borderTopColor: "transparent" }} />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        className="w-full max-w-md bg-[#111111] border border-[#1F1F23] rounded-2xl overflow-hidden flex flex-col"
-        style={{ height: "600px" }}
-      >
-        {/* Header */}
-        <div className="px-5 py-4 border-b border-[#1F1F23] flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#1F1F23] flex items-center justify-center">
-            <span className="text-sm">🤖</span>
-          </div>
-          <div>
-            <h1 className="text-white text-sm font-semibold">
-              {chatbot.name}
-            </h1>
-            <div className="flex items-center gap-1.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-              <span className="text-[#A1A1AA] text-xs">Online</span>
-            </div>
+    <div className="h-screen w-screen flex flex-col overflow-hidden" style={{ backgroundColor: surface }}>
+      <div className="px-5 py-4 flex items-center gap-3 flex-shrink-0" style={{ borderBottom: `1px solid ${border}` }}>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: bg }}>
+          <span className="text-sm">🤖</span>
+        </div>
+        <div>
+          <h1 className="text-sm font-semibold" style={{ color: textPrimary }}>{chatbot.name}</h1>
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+            <span className="text-xs" style={{ color: textSecondary }}>Online</span>
           </div>
         </div>
+      </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          <AnimatePresence initial={false}>
-            {messages.map((msg, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                {msg.role === "assistant" && (
-                  <div className="w-6 h-6 rounded-full bg-[#1F1F23] flex items-center justify-center mr-2 flex-shrink-0 mt-1">
-                    <span className="text-xs">🤖</span>
-                  </div>
-                )}
-                <div
-                  className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm ${
-                    msg.role === "user"
-                      ? "bg-white text-black rounded-tr-none"
-                      : "bg-[#1F1F23] text-white rounded-tl-none"
-                  }`}
-                >
-                  {msg.content}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-
-          {/* Typing indicator */}
-          {loading && (
+      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 min-h-0">
+        <AnimatePresence initial={false}>
+          {messages.map((msg, i) => (
             <motion.div
+              key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex justify-start"
+              transition={{ duration: 0.2 }}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
-              <div className="w-6 h-6 rounded-full bg-[#1F1F23] flex items-center justify-center mr-2 flex-shrink-0">
-                <span className="text-xs">🤖</span>
-              </div>
-              <div className="bg-[#1F1F23] px-4 py-3 rounded-2xl rounded-tl-none">
-                <div className="flex gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#A1A1AA] animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#A1A1AA] animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#A1A1AA] animate-bounce" style={{ animationDelay: "300ms" }} />
+              {msg.role === "assistant" && (
+                <div className="w-6 h-6 rounded-full flex items-center justify-center mr-2 flex-shrink-0 mt-1" style={{ backgroundColor: bg }}>
+                  <span className="text-xs">🤖</span>
                 </div>
+              )}
+              <div
+                className="max-w-[80%] px-4 py-2.5 rounded-2xl text-sm"
+                style={
+                  msg.role === "user"
+                    ? { backgroundColor: bubbleUser, color: "#FFFFFF", borderTopRightRadius: 0 }
+                    : { backgroundColor: bubbleAssistant, color: textPrimary, borderTopLeftRadius: 0 }
+                }
+              >
+                {msg.content}
               </div>
             </motion.div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
+          ))}
+        </AnimatePresence>
 
-        {/* Input */}
-        <div className="px-4 py-4 border-t border-[#1F1F23]">
-          <div className="flex items-center gap-2 bg-[#0A0A0A] border border-[#1F1F23] rounded-xl px-4 py-2.5">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={chatbot.placeholder}
-              className="flex-1 bg-transparent text-white text-sm placeholder-[#A1A1AA] focus:outline-none"
-            />
-            <button
-              onClick={handleSend}
-              disabled={loading || !input.trim()}
-              className="w-7 h-7 bg-white rounded-lg flex items-center justify-center hover:bg-zinc-200 disabled:opacity-50 transition-all active:scale-95 flex-shrink-0"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="black" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-          <p className="text-center text-[#A1A1AA] text-xs mt-2">
-            Powered by <span className="text-white">ChatSpark AI</span>
-          </p>
+        {loading && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-start">
+            <div className="w-6 h-6 rounded-full flex items-center justify-center mr-2 flex-shrink-0" style={{ backgroundColor: bg }}>
+              <span className="text-xs">🤖</span>
+            </div>
+            <div className="px-4 py-3 rounded-2xl" style={{ backgroundColor: bubbleAssistant, borderTopLeftRadius: 0 }}>
+              <div className="flex gap-1">
+                <div className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ backgroundColor: textSecondary, animationDelay: "0ms" }} />
+                <div className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ backgroundColor: textSecondary, animationDelay: "150ms" }} />
+                <div className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ backgroundColor: textSecondary, animationDelay: "300ms" }} />
+              </div>
+            </div>
+          </motion.div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div className="px-4 py-4 flex-shrink-0" style={{ borderTop: `1px solid ${border}` }}>
+        <div className="flex items-center gap-2 rounded-xl px-4 py-2.5" style={{ backgroundColor: bg, border: `1px solid ${border}` }}>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={chatbot.placeholder}
+            className="flex-1 bg-transparent text-sm focus:outline-none"
+            style={{ color: textPrimary }}
+          />
+          <button
+            onClick={handleSend}
+            disabled={loading || !input.trim()}
+            className="w-7 h-7 rounded-lg flex items-center justify-center disabled:opacity-50 transition-all active:scale-95 flex-shrink-0"
+            style={{ backgroundColor: accent }}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="white" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
-      </motion.div>
+        <p className="text-center text-xs mt-2" style={{ color: textSecondary }}>
+          Powered by <span style={{ color: textPrimary }}>ChatSpark AI</span>
+        </p>
+      </div>
     </div>
   )
 }
